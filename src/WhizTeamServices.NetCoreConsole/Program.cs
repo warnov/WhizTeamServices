@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using WhizTeamServices.NetCoreConsole.RestAPIModels;
@@ -52,7 +51,7 @@ namespace WhizTeamServices.NetCoreConsole
             var messageBody = GetMessageBody(workingProject, description, sourceControlProvider, templateId);
 
             //PostExecution
-            var postResult = ExecutePost(workingDomain, pat, messageBody);
+            var postResult = ExecutePost(workingDomain, workingProject, pat, messageBody);
 
             Console.WriteLine($"{postResult}\n\nPress Enter to Finish...");
 
@@ -60,7 +59,7 @@ namespace WhizTeamServices.NetCoreConsole
         }
 
 
-        private static string ExecutePost(string workingDomain, string pat, StringContent messageBody)
+        private static string ExecutePost(string workingDomain, string workingProject, string pat, StringContent messageBody)
         {
             string responseBody=string.Empty;
             using (HttpClient client = new HttpClient())
@@ -83,7 +82,8 @@ namespace WhizTeamServices.NetCoreConsole
                     var code = response.StatusCode;
                     if (response.IsSuccessStatusCode)
                     {
-                        responseBody = $"{code}: {response.Content.ReadAsStringAsync().Result}";
+                        var projectPath = $"https://{workingDomain}.visualstudio.com/DefaultCollection/_git/{workingProject}";
+                        responseBody = $"{code}: {response.Content.ReadAsStringAsync().Result}\n{projectPath} will be ready in a couple of seconds.";
                     }                  
                                       
                 }
